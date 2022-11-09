@@ -6,6 +6,7 @@ from flask import Flask
 from flask import jsonify, request
 import json
 from flask_cors import CORS
+from utils.download import download_audio
 
 from handlers.transcribe import getTranscribedNotes
 
@@ -47,13 +48,17 @@ def getPrediction():
     res = jsonify("pls")
     return res
 
-@app.route('/all', methods=["GET"])
+@app.route('/all', methods=["POST"])
 def getAlldocs():
-    
+    _json = request.json
+    print("POST body: ",_json)
     return jsonify("all")
 
-@app.route('/getnotes', methods=["GET"])
+@app.route('/getnotes', methods=["POST"])
 def getNotes():
+    _json = request.json
+    print("POST body: ",_json)
+    download_audio(_json['download'])
     res = getTranscribedNotes()
     return jsonify(res)
 

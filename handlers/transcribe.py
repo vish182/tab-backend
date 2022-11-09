@@ -314,7 +314,8 @@ def estimate_pitch_and_notes(mm, fs, time_to_beat_tempo,x, onset_boundaries, i, 
 def getTranscribedNotes():
     # Load Audio
     # Loadinging audio file
-    filename = '%sGuns N Roses-Sweet Child O Mine Intro.wav'%path
+    #filename = '%sGuns N Roses-Sweet Child O Mine Intro.wav'%path
+    filename = '%stemp.wav'%path
     print("filename == ", filename)
     x, fs = librosa.load(filename, sr=None, mono=True, duration=12)
     
