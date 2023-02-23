@@ -9,6 +9,7 @@ from flask_cors import CORS
 from utils.download import download_audio
 
 from handlers.transcribe import getTranscribedNotes
+from handlers.autochord import getChords
 
 
 app = Flask(__name__)
@@ -59,8 +60,21 @@ def getNotes():
     _json = request.json
     print("POST body: ",_json)
     download_audio(_json['download'])
-    res = getTranscribedNotes()
-    return jsonify(res)
+
+    if int(_json['chords']) == 0:
+        res = getTranscribedNotes()
+        return jsonify(res)
+    elif int(_json['chords']) == 1:
+        res = getChords('temp.wav')
+        return res
+
+# @app.route('/get_Chords', methods=["POST"])
+# def getNotes():
+#     _json = request.json
+#     print("POST body: ",_json)
+#     download_audio(_json['download'])
+#     res = getTranscribedNotes()
+#     return jsonify(res)
 
 if __name__ == "__main__":
     print("hello world")
