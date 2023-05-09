@@ -61,13 +61,27 @@ hop_length = int(nfft*(1-overlap))       # Number of samples between successive 
 n_bins = 72                              # Number of frequency bins
 mag_exp = 4                              # Magnitude Exponent
 pre_post_max = 6                         # Pre- and post- samples for peak picking
-cqt_threshold = -61                      # Threshold for CQT dB levels, all values below threshold are set to -120 dB
-
+cqt_threshold = -80                      # Threshold for CQT dB levels, all values below threshold are set to -120 dB
+invalid_note_duration = [0.00, 0.01, 0.02, 0.03, 0.04, 0.07, 0.08, 0.11, 0.13, 0.14, 0.16, 0.17, 0.19, 0.23, 0.29, 0.31, 0.37, 0.41, 0.43, 0.47, 0.49, 0.53, 0.59, 0.61, 0.67, 0.71, 0.73, 0.77, 0.79, 0.83, 0.89, 0.91, 0.97]
 
 # In[5]:
 
 
+def normalize(arr, t_min, t_max):
+    norm_arr = []
+    diff = t_max - t_min
+    minval = min(arr)
+    diff_arr = max(arr) - minval
+    #print(diff_arr)
+    if diff_arr == 0:
+        for i in arr:
+            norm_arr.append(0)
+    else:
+        for i in arr:
+            temp = (((i - minval)*diff)/diff_arr) + t_min
+            norm_arr.append(temp)
 
+    return norm_arr
 
 
 # In[6]:
@@ -189,9 +203,25 @@ def inter_cqt_tuning(x,fs, mag_exp,thres,pre_post_max, backtrack):
     global CdB
     CdB = calc_cqt(x,fs,hop_length, n_bins, mag_exp)
     #plt.figure()
+
+    CdB = np.transpose(CdB)
+    range_to_normalize = (0,1)
+    
+    for i in range(len(CdB)):
+        CdB[i] = normalize(CdB[i],range_to_normalize[0],range_to_normalize[1])
+        perc = np.percentile(CdB[i], 95)
+        #print("perc: ",perc)
+        CdB[i] = np.where(CdB[i] > perc, CdB[i], 0)
+        
+    CdB = np.transpose(CdB)
+    CdB = 30 * CdB
+    
+    CdB = -80 + CdB
+
+
     new_cqt=cqt_thresholded(CdB,thres)
-    #librosa.display.specshow(new_cqt, sr=fs, hop_length=hop_length, x_axis='time', y_axis='cqt_note', cmap='coolwarm')
-    #plt.ylim([librosa.note_to_hz('B2'),librosa.note_to_hz('B6')])
+    # librosa.display.specshow(new_cqt, sr=fs, hop_length=hop_length, x_axis='time', y_axis='cqt_note', cmap='coolwarm')
+    plt.ylim([librosa.note_to_hz('B2'),librosa.note_to_hz('B6')])
     global onsets
     onsets=calc_onset(fs, new_cqt,pre_post_max, backtrack)
     # plt.vlines(onsets[0], 0, fs/2, color='k', alpha=0.8)
@@ -257,6 +287,10 @@ def generate_sine_midi_note(mm, fs, time_to_beat_tempo, f0_info, sr, n_duration,
     midi_velocity=int(round(remap(f0_info[1], CdB.min(), CdB.max(), 0, 127)))
     if round_to_sixtenth:
         midi_duration=round(midi_duration*16)/16
+
+    while note_duration in invalid_note_duration:
+        note_duration = note_duration + 0.01
+    
     if f0==None:
         midi_note=None
         note_info=Rest(type=mm.secondsToDuration(note_duration).type)
@@ -349,7 +383,12 @@ def getTranscribedNotes():
     res = []
 
     for note in note_info:
-        res.append(str(note))
+        # print(str(note))
+        if str(note) == "<music21.note.Rest rest>":
+            pass
+            #res.append("Rest")
+        else:
+            res.append(str(note[0].pitch))
     
     return res
 
