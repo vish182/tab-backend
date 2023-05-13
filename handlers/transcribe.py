@@ -61,8 +61,8 @@ hop_length = int(nfft*(1-overlap))       # Number of samples between successive 
 n_bins = 72                              # Number of frequency bins
 mag_exp = 4                              # Magnitude Exponent
 pre_post_max = 6                         # Pre- and post- samples for peak picking
-cqt_threshold = -80                      # Threshold for CQT dB levels, all values below threshold are set to -120 dB
-invalid_note_duration = [0.00, 0.01, 0.02, 0.03, 0.04, 0.07, 0.08, 0.11, 0.13, 0.14, 0.16, 0.17, 0.19, 0.23, 0.29, 0.31, 0.37, 0.41, 0.43, 0.47, 0.49, 0.53, 0.59, 0.61, 0.67, 0.71, 0.73, 0.77, 0.79, 0.83, 0.89, 0.91, 0.97]
+cqt_threshold = -80                     # Threshold for CQT dB levels, all values below threshold are set to -120 dB
+invalid_note_duration = [0.00, 0.01, 0.02, 0.03, 0.04, 0.06, 0.07, 0.08, 0.11, 0.13, 0.14, 0.16, 0.17, 0.19, 0.23, 0.29, 0.31, 0.37, 0.41, 0.43, 0.47, 0.49, 0.53, 0.59, 0.61, 0.67, 0.71, 0.73, 0.77, 0.79, 0.83, 0.89, 0.91, 0.97]
 
 # In[5]:
 
@@ -288,8 +288,15 @@ def generate_sine_midi_note(mm, fs, time_to_beat_tempo, f0_info, sr, n_duration,
     if round_to_sixtenth:
         midi_duration=round(midi_duration*16)/16
 
+    note_duration = (note_duration//0.01)/100
+
     while note_duration in invalid_note_duration:
         note_duration = note_duration + 0.01
+        print("innder: ", note_duration)
+
+    
+
+    print("note duration: ", note_duration)
     
     if f0==None:
         midi_note=None
@@ -349,6 +356,7 @@ def getTranscribedNotes():
     # Load Audio
     # Loadinging audio file
     #filename = '%sGuns N Roses-Sweet Child O Mine Intro.wav'%path
+    print("here")
     filename = '%stemp.wav'%path
     print("filename == ", filename)
     x, fs = librosa.load(filename, sr=None, mono=True, duration=12)
@@ -365,7 +373,11 @@ def getTranscribedNotes():
     tempo, beats=librosa.beat.beat_track(y=None, sr=fs, onset_envelope=onsets[2], hop_length=hop_length,
                 start_bpm=120.0, tightness=100, trim=True, bpm=None,
                 units='frames')
+    if tempo < 130:
+        tempo = 130
+    print("Tempo: ", tempo)
     tempo=int(2*round(tempo/2))
+    print("Tempo: ", tempo)
     mm = MetronomeMark(referent='quarter', number=tempo)
 
     print("CDB:")

@@ -282,6 +282,10 @@ class tabGenerator():
         noteGroups = [n.replace("db", "c#") for n in noteGroups]
         noteGroups = [n.replace("eb", "d#") for n in noteGroups]
 
+        outOfRangeNotes = [ "a2","b2","c2","c#2", "d2","d#2"]
+
+        noteGroups = [n for n in noteGroups if n not in outOfRangeNotes]
+
         # split up notes into different elements of new list for note validation
         allNotes = []
         for line in noteGroups:
@@ -688,6 +692,10 @@ class tabGenerator():
 
         print(noteGroups)
 
+        if noteGroups == None:
+            noteGroups = []
+            return
+
         # loop through note groups to record frets in string records
         for i in range(len(noteGroups)):
             if noteGroups[i] in cls.chordMap.keys():
@@ -712,33 +720,38 @@ def tabgen_api(input_notes):
     filename = "notes.txt"
     tabGenerator.main(filename, input_notes)
     time.sleep(0.1)
-    f = open("tab_1.txt", "r")
-    notes = []
-    count = 1
-    for line in f:
-        
-        if(count == 7):
-            break
-        line = line[1:-1]
-        line = line.replace(" ", "")
-        #print("line: ", line)
-        notes.append(line.split(","))
+    
+    try:
+        f = open("tab_1.txt", "r")
+        notes = []
+        count = 1
+        for line in f:
+            
+            if(count == 7):
+                break
+            line = line[1:-1]
+            line = line.replace(" ", "")
+            #print("line: ", line)
+            notes.append(line.split(","))
 
-        count +=1
-    strings = {0:'e1', 1:'b', 2:'g', 3:'d', 4: 'a', 5: 'e0'}
-    final_arr = []
-    for i in range(len(notes[0])):
-        for j in range(6):
-            if(notes[j][i] != "-"):
-                d = {}
-                #print("here", notes[j][i])
-                d[strings[j]] = int(notes[j][i])
-                final_arr.append(d)
+            count +=1
+        strings = {0:'e1', 1:'b', 2:'g', 3:'d', 4: 'a', 5: 'e0'}
+        final_arr = []
+        for i in range(len(notes[0])):
+            for j in range(6):
+                if(notes[j][i] != "-"):
+                    d = {}
+                    #print("here", notes[j][i])
+                    d[strings[j]] = int(notes[j][i])
+                    final_arr.append(d)
 
 
-    print(final_arr)
-    f.close()
-    return final_arr
+        print(final_arr)
+        f.close()
+        return final_arr
+    except Exception:
+        return []
+
 
 if __name__ == "__main__":
     #input("Enter filename: ")

@@ -11,6 +11,7 @@ from utils.download import download_audio
 from handlers.transcribe import getTranscribedNotes
 from handlers.autochord import getChords
 from handlers.createTabs import tabgen_api
+from handlers.seperate import seperate
 
 
 app = Flask(__name__)
@@ -62,7 +63,10 @@ def getNotes():
     print("POST body: ",_json)
     download_audio(_json['download'])
 
+    seperate()
+
     if int(_json['chords']) == 0:
+        print("tabs")
         res = getTranscribedNotes()
         print("before tab gen: ", res)
         res = tabgen_api(res)
@@ -70,6 +74,7 @@ def getNotes():
         res = [(str(x)).replace("'", "\"") for x in res]
         return json.dumps(res)
     elif int(_json['chords']) == 1:
+        print("chords")
         res = getChords('temp.wav')
         return res
 
