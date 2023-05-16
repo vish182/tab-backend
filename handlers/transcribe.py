@@ -359,7 +359,7 @@ def getTranscribedNotes():
     print("here")
     filename = '%stemp.wav'%path
     print("filename == ", filename)
-    x, fs = librosa.load(filename, sr=None, mono=True, duration=12)
+    x, fs = librosa.load(filename, sr=None, mono=True)
     
     # Audio data information
     print("x Shape=", x.shape)
@@ -375,8 +375,22 @@ def getTranscribedNotes():
                 units='frames')
     if tempo < 130:
         tempo = 130
+    elif tempo < 140:
+        tempo = 135
+    elif tempo < 150:
+        tempo = 144
+    elif tempo < 160:
+        tempo = 155
+    elif tempo < 170:
+        tempo = 165
+    elif tempo < 180:
+        tempo = 175
+    elif tempo < 190:
+        tempo = 184
+    elif tempo < 200:
+        tempo = 190
     print("Tempo: ", tempo)
-    tempo=int(2*round(tempo/2))
+    #tempo=int(2*round(tempo/2))
     print("Tempo: ", tempo)
     mm = MetronomeMark(referent='quarter', number=tempo)
 

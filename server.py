@@ -63,7 +63,9 @@ def getNotes():
     print("POST body: ",_json)
     download_audio(_json['download'])
 
-    seperate()
+    dur = int(seperate(int(_json['startTime']), int(_json['endTime'])))
+
+    print("duration of clip: ", dur)
 
     if int(_json['chords']) == 0:
         print("tabs")

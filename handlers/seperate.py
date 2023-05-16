@@ -1,9 +1,9 @@
 import requests
 
-def seperate():
+def seperate(start, end):
     url = 'http://localhost:5555/seperate'
-    myobj = {}
+    myobj = {'start': start, 'end': end}
 
     x = requests.post(url, json = myobj)
 
-    return
+    return x.text
