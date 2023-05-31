@@ -380,7 +380,7 @@ def getTranscribedNotes():
     elif tempo < 150:
         tempo = 144
     elif tempo < 160:
-        tempo = 155
+        tempo = 154
     elif tempo < 170:
         tempo = 165
     elif tempo < 180:
